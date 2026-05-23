@@ -470,6 +470,14 @@
       }
     })();
 
+    // Fire-and-forget visit ping (page load analytics). Sends only the referrer
+    // URL; the server stores just the hostname (e.g. "bsky.app").
+    fetch('/api/visit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ referrer: document.referrer || null }),
+    }).catch(() => {});
+
     async function fetchCount() {
       try {
         const res = await fetch('/api/count');

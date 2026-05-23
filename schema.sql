@@ -22,3 +22,12 @@ CREATE TABLE IF NOT EXISTS ryan_events (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   ts INTEGER NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS visits (
+  id       INTEGER PRIMARY KEY AUTOINCREMENT,
+  ts       INTEGER NOT NULL,
+  referrer TEXT  -- hostname only, e.g. "bsky.app", "t.co", or NULL for direct
+);
+
+CREATE INDEX IF NOT EXISTS idx_visits_ts ON visits(ts);
+CREATE INDEX IF NOT EXISTS idx_visits_referrer ON visits(referrer);
