@@ -1,0 +1,9 @@
+name = "qwantzle"
+compatibility_date = "2024-09-25"
+pages_build_output_dir = "public"
+
+# After running `wrangler d1 create qwantzle-db`, paste the database_id below.
+[[d1_databases]]
+binding = "DB"
+database_name = "qwantzle-db"
+database_id = "f76eb947-1956-4d3c-a350-31f5cbede47d"

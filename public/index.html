@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Qwantzle Checker</title>
+  <style>
+    :root {
+      --bg: #faf9f6;
+      --card: #ffffff;
+      --text: #1a1a1a;
+      --muted: #6b7280;
+      --accent: #2563eb;
+      --green: #16a34a;
+      --red: #dc2626;
+      --amber: #d97706;
+      --border: #e5e7eb;
+      --trex-green: #7db847;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Georgia', serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+
+    h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 0.95rem;
+      font-style: italic;
+    }
+
+    .subtitle a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    .subtitle a:hover { text-decoration: underline; }
+
+    .input-area {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 100px;
+      padding: 0.75rem;
+      font-family: 'Courier New', monospace;
+      font-size: 1rem;
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      resize: vertical;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    textarea:focus { border-color: var(--accent); }
+    textarea::placeholder { color: #aaa; }
+
+    .controls {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 1rem;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+
+    .privacy-controls {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.85rem;
+      color: var(--muted);
+      cursor: pointer;
+    }
+    .checkbox-row input[type="checkbox"] {
+      cursor: pointer;
+    }
+
+    .ryan-btn {
+      background: none;
+      border: none;
+      font-size: 0.8rem;
+      color: var(--muted);
+      cursor: pointer;
+      text-decoration: underline;
+      text-decoration-style: dotted;
+      padding: 0;
+    }
+    .ryan-btn:hover { color: var(--text); }
+
+    button.check-btn {
+      background: var(--trex-green);
+      color: white;
+      border: none;
+      padding: 0.6rem 1.5rem;
+      font-size: 1rem;
+      font-family: 'Georgia', serif;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+    }
+    button.check-btn:hover { background: #6da33d; }
+    button.check-btn:active { transform: scale(0.98); }
+    button.check-btn:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+
+    .results {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      display: none;
+    }
+
+    .results.visible { display: block; }
+
+    .diff-banner {
+      text-align: center;
+      padding: 1rem;
+      border-radius: 8px;
+      margin-bottom: 1.25rem;
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+    .diff-banner.perfect {
+      background: #dcfce7;
+      color: #15803d;
+      font-size: 1.3rem;
+    }
+    .diff-banner.close {
+      background: #fef3c7;
+      color: #92400e;
+    }
+    .diff-banner.far {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .constraint-list {
+      list-style: none;
+      margin-top: 0.5rem;
+    }
+
+    .constraint-list li {
+      padding: 0.4rem 0;
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+      font-size: 0.95rem;
+      border-bottom: 1px solid #f3f4f6;
+    }
+    .constraint-list li:last-child { border-bottom: none; }
+
+    .check-icon { font-size: 1rem; flex-shrink: 0; margin-top: 2px; }
+    .pass .check-icon { color: var(--green); }
+    .fail .check-icon { color: var(--red); }
+    .warn .check-icon { color: var(--amber); }
+
+    .detail {
+      font-family: 'Courier New', monospace;
+      font-size: 0.85rem;
+      color: var(--muted);
+      display: block;
+      margin-top: 2px;
+    }
+
+    .stats-row {
+      display: flex;
+      gap: 1.5rem;
+      margin-bottom: 1rem;
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+
+    .ryan-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.6);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+    }
+    .ryan-overlay.visible { display: flex; }
+
+    .ryan-modal {
+      background: var(--card);
+      border-radius: 12px;
+      padding: 2rem;
+      max-width: 480px;
+      text-align: center;
+    }
+    .ryan-modal h3 { margin-bottom: 1rem; font-size: 1.2rem; }
+    .ryan-modal p { color: var(--muted); margin-bottom: 1.5rem; font-size: 0.95rem; }
+    .ryan-modal .btn-row { display: flex; gap: 0.75rem; justify-content: center; }
+    .ryan-modal button {
+      padding: 0.5rem 1.25rem;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      cursor: pointer;
+      font-family: 'Georgia', serif;
+    }
+    .ryan-confirm {
+      background: var(--red);
+      color: white;
+      border: 2px solid var(--red);
+    }
+    .ryan-cancel {
+      background: white;
+      color: var(--text);
+      border: 2px solid var(--border);
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 3rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+    footer a { color: var(--accent); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+
+    .info-block {
+      background: #f0f9ff;
+      border: 1px solid #bae6fd;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1.5rem;
+      font-size: 0.9rem;
+      color: #0c4a6e;
+    }
+    .info-block summary {
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .info-block ul {
+      margin: 0.5rem 0 0 1.25rem;
+      line-height: 1.8;
+    }
+
+    .attempt-counter {
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.85rem;
+      margin-top: 1rem;
+      font-style: italic;
+    }
+
+    .loading-msg {
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.85rem;
+      margin-bottom: 1rem;
+    }
+
+    @media (max-width: 500px) {
+      .controls { flex-direction: column; align-items: stretch; }
+      button.check-btn { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Qwantzle Checker</h1>
+      <p class="subtitle">
+        Test your solution to the <a href="https://qwantz.com/index.php?comic=1663" target="_blank">unsolved cryptoanagram</a>
+        from Dinosaur Comics #1663
+      </p>
+    </header>
+
+    <details class="info-block">
+      <summary>What is the Qwantzle?</summary>
+      <p style="margin-top: 0.5rem;">
+        In 2010, Ryan North embedded an unsolved cryptoanagram in Dinosaur Comics #1663.
+        98 letters rearrange into a single sentence T-Rex would say. It has remained
+        unsolved for over 16 years <span id="live-counter" style="color:var(--muted);font-style:italic;"></span>.
+      </p>
+      <ul>
+        <li>Starts with "I"</li>
+        <li>Last word ends in "w" (followed by "!!")</li>
+        <li>Punctuation <code>:,!!</code> appears in that order</li>
+        <li>Longest word is 11 letters; second-longest is 8 (adjacent)</li>
+        <li>No 9 or 10 letter words</li>
+        <li>All words from the Dinosaur Comics vocabulary</li>
+        <li>Would make a good epitaph</li>
+      </ul>
+    </details>
+
+    <div class="input-area">
+      <textarea
+        id="sentence"
+        placeholder='I say that our fundamental honestly about...'
+        autofocus
+      ></textarea>
+      <div class="controls">
+        <div class="privacy-controls">
+          <label class="checkbox-row">
+            <input type="checkbox" id="no-log">
+            Don't log this attempt
+          </label>
+          <button class="ryan-btn" id="ryan-btn">
+            I'm Ryan North and I need to test the real answer
+          </button>
+        </div>
+        <button class="check-btn" id="check-btn">Check it</button>
+      </div>
+    </div>
+
+    <div class="results" id="results"></div>
+
+    <div class="attempt-counter" id="attempt-counter"></div>
+
+    <footer>
+      <p>
+        We anonymously log submitted attempts to study solving patterns.
+        Check "Don't log" if you'd rather not contribute.
+      </p>
+      <p style="margin-top: 0.5rem;">
+        Built by people who are also trying to solve this thing.
+      </p>
+    </footer>
+  </div>
+
+  <div class="ryan-overlay" id="ryan-overlay">
+    <div class="ryan-modal">
+      <h3>Are you REALLY Ryan North?</h3>
+      <p>
+        If you're actually Ryan, this will disable all logging for the rest of your session.
+        Your sentence will be checked locally and nothing will be recorded.
+        <br><br>
+        (If you're not Ryan, this is fine too. We just won't learn from your attempts.)
+      </p>
+      <div class="btn-row">
+        <button class="ryan-confirm" id="ryan-confirm">I am literally Ryan North</button>
+        <button class="ryan-cancel" id="ryan-cancel">Nevermind</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { loadVocab, checkSentence } from "/validate.js";
+
+    const $ = id => document.getElementById(id);
+    let ryanMode = false;
+    let sessionId = crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2);
+    let vocab = null;
+
+    function updateCounter() {
+      const start = new Date('2010-03-01T00:00:00');
+      const now = new Date();
+      const ms = now - start;
+      const totalDays = Math.floor(ms / 86400000);
+      const years = Math.floor(totalDays / 365.25);
+      const remainingDays = totalDays - Math.floor(years * 365.25);
+      const el = $('live-counter');
+      if (el) el.textContent = `(precisely ${years} years and ${remainingDays} days, as of right now)`;
+    }
+    updateCounter();
+    setInterval(updateCounter, 60000);
+
+    // Load vocab in the background
+    (async () => {
+      try {
+        vocab = await loadVocab('/vocab.json');
+        fetchCount();
+      } catch (err) {
+        console.error('Failed to load vocab:', err);
+      }
+    })();
+
+    async function fetchCount() {
+      try {
+        const res = await fetch('/api/count');
+        if (!res.ok) return;
+        const data = await res.json();
+        if (data.total) {
+          $('attempt-counter').textContent =
+            `${data.total.toLocaleString()} attempts checked so far`;
+        }
+      } catch { /* no logging backend available; OK */ }
+    }
+
+    $('ryan-btn').addEventListener('click', () => {
+      $('ryan-overlay').classList.add('visible');
+    });
+    $('ryan-cancel').addEventListener('click', () => {
+      $('ryan-overlay').classList.remove('visible');
+    });
+    $('ryan-confirm').addEventListener('click', () => {
+      ryanMode = true;
+      $('ryan-overlay').classList.remove('visible');
+      $('no-log').checked = true;
+      $('no-log').disabled = true;
+      $('ryan-btn').textContent = 'Ryan mode active — nothing will be logged';
+      $('ryan-btn').style.color = '#16a34a';
+      $('ryan-btn').style.textDecoration = 'none';
+      $('ryan-btn').style.cursor = 'default';
+      fetch('/api/ryan-event', { method: 'POST', headers: {'Content-Type':'application/json'}, body: '{}' }).catch(() => {});
+    });
+    $('ryan-overlay').addEventListener('click', (e) => {
+      if (e.target === $('ryan-overlay')) $('ryan-overlay').classList.remove('visible');
+    });
+
+    $('sentence').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        doCheck();
+      }
+    });
+    $('check-btn').addEventListener('click', doCheck);
+
+    async function doCheck() {
+      const sentence = $('sentence').value.trim();
+      if (!sentence) return;
+
+      if (!vocab) {
+        try { vocab = await loadVocab('/vocab.json'); }
+        catch (err) {
+          $('results').innerHTML = `<p style="color:var(--red)">Couldn't load vocabulary file.</p>`;
+          $('results').classList.add('visible');
+          return;
+        }
+      }
+
+      const btn = $('check-btn');
+      btn.disabled = true;
+      btn.textContent = 'Checking...';
+
+      try {
+        const result = checkSentence(sentence, vocab);
+        renderResults(result);
+
+        const noLog = $('no-log').checked || ryanMode;
+        if (!noLog) {
+          fetch('/api/log', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              sentence,
+              session_id: sessionId,
+              diff: result.letter_diff,
+              surplus: result.surplus,
+              deficit: result.deficit,
+              word_count: result.word_count,
+              all_pass: result.all_constraints_pass,
+              eleven: result.eleven,
+              eight: result.eight,
+              ending: result.ending,
+            }),
+          }).then(r => r.json()).then(d => {
+            if (d && d.total) {
+              $('attempt-counter').textContent =
+                `${d.total.toLocaleString()} attempts checked so far`;
+            }
+          }).catch(() => {});
+        }
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Check it';
+      }
+    }
+
+    function renderResults(data) {
+      const el = $('results');
+      const diff = data.letter_diff;
+
+      let bannerClass, bannerText;
+      if (diff === 0) {
+        bannerClass = 'perfect';
+        bannerText = 'LETTER-PERFECT MATCH (diff = 0)';
+      } else if (diff <= 6) {
+        bannerClass = 'close';
+        bannerText = `Close! Letter diff = ${diff}`;
+      } else {
+        bannerClass = 'far';
+        bannerText = `Letter diff = ${diff}`;
+      }
+
+      let html = `<div class="diff-banner ${bannerClass}">${bannerText}</div>`;
+
+      html += `<div class="stats-row">
+        <span>${data.char_count} chars</span>
+        <span>${data.word_count} words</span>
+        <span>${data.letter_count} letters</span>
+      </div>`;
+
+      if (data.surplus && data.surplus !== '(none)') {
+        html += `<p style="font-size:0.9rem;margin-bottom:0.25rem;">
+          <strong>Surplus</strong> (remove): <code>${data.surplus}</code></p>`;
+      }
+      if (data.deficit && data.deficit !== '(none)') {
+        html += `<p style="font-size:0.9rem;margin-bottom:1rem;">
+          <strong>Deficit</strong> (need): <code>${data.deficit}</code></p>`;
+      }
+
+      html += '<ul class="constraint-list">';
+      for (const c of data.constraints) {
+        const cls = c.pass ? 'pass' : (c.warning ? 'warn' : 'fail');
+        const icon = c.pass ? '&#10003;' : (c.warning ? '&#9888;' : '&#10007;');
+        html += `<li class="${cls}">
+          <span class="check-icon">${icon}</span>
+          <div>
+            ${c.label}
+            ${c.detail ? `<span class="detail">${c.detail}</span>` : ''}
+          </div>
+        </li>`;
+      }
+      html += '</ul>';
+
+      if (diff === 0 && data.all_constraints_pass) {
+        html += `<div class="diff-banner perfect" style="margin-top:1.25rem;">
+          This sentence passes ALL constraints. Could this be it?!
+        </div>`;
+      }
+
+      el.innerHTML = html;
+      el.classList.add('visible');
+      el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+  </script>
+</body>
+</html>
