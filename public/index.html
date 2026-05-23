@@ -455,8 +455,22 @@
       } catch { /* no logging backend available; OK */ }
     }
 
+    function exitRyanMode() {
+      ryanMode = false;
+      $('no-log').disabled = false;
+      $('no-log').checked = false;
+      $('ryan-btn').textContent = "I'm Ryan North and I need to test the real answer";
+      $('ryan-btn').style.color = '';
+      $('ryan-btn').style.textDecoration = '';
+      $('ryan-btn').style.cursor = '';
+    }
+
     $('ryan-btn').addEventListener('click', () => {
-      $('ryan-overlay').classList.add('visible');
+      if (ryanMode) {
+        exitRyanMode();
+      } else {
+        $('ryan-overlay').classList.add('visible');
+      }
     });
     $('ryan-cancel').addEventListener('click', () => {
       $('ryan-overlay').classList.remove('visible');
@@ -466,10 +480,10 @@
       $('ryan-overlay').classList.remove('visible');
       $('no-log').checked = true;
       $('no-log').disabled = true;
-      $('ryan-btn').textContent = 'Ryan mode active — nothing will be logged';
+      $('ryan-btn').textContent = "Ryan mode active — click here if you were lying about being Ryan";
       $('ryan-btn').style.color = '#16a34a';
-      $('ryan-btn').style.textDecoration = 'none';
-      $('ryan-btn').style.cursor = 'default';
+      $('ryan-btn').style.textDecoration = 'underline';
+      $('ryan-btn').style.cursor = 'pointer';
       fetch('/api/ryan-event', { method: 'POST', headers: {'Content-Type':'application/json'}, body: '{}' }).catch(() => {});
     });
     $('ryan-overlay').addEventListener('click', (e) => {
