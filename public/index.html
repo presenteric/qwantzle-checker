@@ -387,13 +387,32 @@
     let sessionId = crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2);
     let vocab = null;
 
-    // Real diff=0 sentences we've already found (all pass every known constraint
-    // but aren't quite the answer). Rotated randomly as placeholder.
+    // Real diff=0 sentences we've already found. Every one of these passes
+    // every known constraint — but none feels right. Rotated randomly as the
+    // placeholder to demonstrate that letter-perfect isn't enough.
     const DIFF_ZERO_FOUND = [
+      // acknowledge family — the most natural-sounding ones
       "I say the youth often draft an obvious truth but it is also the duty to honestly acknowledge life: I remind you, and I allow!!",
+      "I truly say it is an obvious duty to honestly acknowledge the sad truth about the youth of life: I often remind, and I allow!!",
+      "I say it is the duty of the youth to honestly acknowledge an obvious and often sad truth about life: I truly remind, I allow!!",
+      "I remind you: the youth often draft an obvious truth, but I say it is also the duty to honestly acknowledge life and I allow!!",
+      "I say it is the duty to honestly acknowledge life but also an obvious truth: I often remind the youth you draft, and I allow!!",
+      // fundamental family — semi-coherent
       "I say that our fundamental honestly about a duty is not to hide core but give freely to all of destiny with: I should, I know!!",
+      "I say that our fundamental honestly about duty is not to hide a core but give freely to all of destiny with: I should, I know!!",
+      "I say that with our fundamental honestly about a duty is not to hide core but give freely to all of destiny: I should, I know!!",
+      "I say that our fundamental honestly is about a duty: not to hide core but give freely to all of destiny with, I should I know!!",
+      // fundamental — the structurally wonky ones
+      "I say that our core duty is to destiny: not to hide but give freely with fundamental honestly about a all of I should, I know!!",
+      "I say that our core duty to all of destiny is: not to hide but give freely with fundamental honestly about a I should, I know!!",
+      "I say that a core duty to our destiny is: not to hide but give freely with fundamental honestly about all of I should, I know!!",
+      // discoveries family — the "ye" ones, kind of archaic
       "I told ye the truth: I said that honestly discoveries totally belong to any of it, ahead but if for due my own unusual I know!!",
+      "I told ye that I said the truth: honestly discoveries totally belong to any of it ahead, but if for due my own unusual I know!!",
+      "I totally told ye the truth: I said that honestly discoveries belong to any of it, ahead but if due for my own unusual I know!!",
+      // beautifully + becoming
       "I say that to have found the fault in a lost older day is beautifully becoming: I should not deny yet without resort, I know!!",
+      "I say that to have the fault found in a lost older day is beautifully becoming: I should not deny yet without resort, I know!!",
     ];
     {
       const ta = $('sentence');
