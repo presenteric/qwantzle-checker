@@ -300,6 +300,53 @@
       margin: 0.5rem 0 0 1.25rem;
       line-height: 1.8;
     }
+    .info-block .hints-heading {
+      margin-top: 0.85rem;
+      font-weight: 600;
+    }
+
+    .puzzle-letters {
+      background: #fffbeb;
+      border: 1px solid #fcd34d;
+      border-radius: 6px;
+      padding: 0.75rem;
+      margin-top: 0.75rem;
+    }
+    .puzzle-letters-toggle {
+      display: flex;
+      gap: 0.25rem;
+      margin-bottom: 0.5rem;
+    }
+    .lb-toggle {
+      background: white;
+      border: 1px solid #fcd34d;
+      border-radius: 6px;
+      padding: 0.25rem 0.6rem;
+      font-size: 0.75rem;
+      cursor: pointer;
+      color: #92400e;
+      font-family: 'Georgia', serif;
+    }
+    .lb-toggle.active {
+      background: #92400e;
+      color: white;
+      border-color: #92400e;
+    }
+    #puzzle-letters-display {
+      font-family: 'Courier New', monospace;
+      font-size: 0.85rem;
+      word-break: break-all;
+      white-space: pre-wrap;
+      margin: 0;
+      color: #78350f;
+      line-height: 1.5;
+    }
+    .puzzle-letters-caption {
+      font-size: 0.75rem;
+      color: #92400e;
+      margin-top: 0.4rem;
+      font-style: italic;
+    }
 
     .attempt-counter {
       text-align: center;
@@ -339,14 +386,30 @@
         98 letters rearrange into a single sentence T-Rex would say. It has remained
         unsolved for over 16 years <span id="live-counter" style="color:var(--muted);font-style:italic;"></span>.
       </p>
+
+      <div class="puzzle-letters">
+        <div class="puzzle-letters-toggle">
+          <button type="button" class="lb-toggle active" data-view="crypto">As shown in the comic</button>
+          <button type="button" class="lb-toggle" data-view="bank">Full letter bank</button>
+        </div>
+        <pre id="puzzle-letters-display">12t10o8e7a6l6n6u5i5s5d5h5y3I3r3fbbwwkcmvg:,!!</pre>
+        <div class="puzzle-letters-caption" id="puzzle-letters-caption">
+          The 98 characters as Ryan presented them in panel 6 — counts in front, singletons spelled out.
+        </div>
+      </div>
+
+      <p class="hints-heading">Ryan North's hints (from comics 1665, 1666, 4005, and TCAF 2012):</p>
       <ul>
-        <li>Starts with "I"</li>
-        <li>Last word ends in "w" (followed by "!!")</li>
-        <li>Punctuation <code>:,!!</code> appears in that order</li>
-        <li>Longest word is 11 letters; second-longest is 8 (adjacent)</li>
-        <li>No 9 or 10 letter words</li>
-        <li>All words from the Dinosaur Comics vocabulary</li>
-        <li>Would make a good epitaph</li>
+        <li>The first word is "I"</li>
+        <li>The final letter is "w" (so the sentence ends in <code>w!!</code>)</li>
+        <li>The punctuation <code>:,!!</code> appears in the solution, in that order</li>
+        <li>The longest word is 11 characters; the second-longest is 8 — and they're side by side</li>
+        <li>All words appear in Jadrian's Qwantz Corpus (the Dinosaur Comics vocabulary)</li>
+        <li>The letters are case-sensitive</li>
+        <li>It's natural-sounding, reasonably-grammatical dialogue T-Rex would say</li>
+        <li>It does not refer to anagrams, puzzles, or t-shirts</li>
+        <li>What T-Rex is saying is directly related to the content of comic #1663</li>
+        <li>Ryan said in person it would make a good epitaph</li>
       </ul>
     </details>
 
@@ -459,6 +522,23 @@
     }
     updateCounter();
     setInterval(updateCounter, 60000);
+
+    const CRYPTO_FORM = '12t10o8e7a6l6n6u5i5s5d5h5y3I3r3fbbwwkcmvg:,!!';
+    const BANK_FORM = 'ttttttttttttooooooooooeeeeeeeeaaaaaaallllllnnnnnnuuuuuuiiiiisssssdddddhhhhhyyyyyIIIrrrfffbbwwkcmvg:,!!';
+    const CRYPTO_CAPTION = 'The 98 characters as Ryan presented them in panel 6 — counts in front, singletons spelled out.';
+    const BANK_CAPTION = 'The same 98 characters with every letter spelled out — what you have to rearrange.';
+
+    document.querySelectorAll('.lb-toggle').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        document.querySelectorAll('.lb-toggle').forEach((b) => b.classList.remove('active'));
+        btn.classList.add('active');
+        const view = btn.dataset.view;
+        $('puzzle-letters-display').textContent = view === 'crypto' ? CRYPTO_FORM : BANK_FORM;
+        $('puzzle-letters-caption').textContent = view === 'crypto' ? CRYPTO_CAPTION : BANK_CAPTION;
+      });
+    });
 
     // Load vocab in the background
     (async () => {
